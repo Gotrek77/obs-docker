@@ -1,24 +1,25 @@
-version: "3"
+version: "3.9"
 
 services:
-
   networksandbox:
     image: k8s.gcr.io/pause
 
-  eos1100d:
-    privileged: true
-    image: nixery.dev/shell/ffmpeg/gphoto2
-    command:
-    - sh
-    - -c
-    - |
-      gphoto2 --stdout --capture-movie \
-      | ffmpeg -i - -vcodec rawvideo -pix_fmt yuv420p -threads 0 -f v4l2 /dev/video9
+  # eos1100d:
+  #   privileged: true
+  #   image: nixery.dev/shell/ffmpeg/gphoto2
+  #   profiles:
+  #     - donotstart
+  #   command:
+  #   - sh
+  #   - -c
+  #   - |
+  #     gphoto2 --stdout --capture-movie \
+  #     | ffmpeg -i - -vcodec rawvideo -pix_fmt yuv420p -threads 0 -f v4l2 /dev/video9
 
   v4l2loopback:
     privileged: true
     image: alpine
-    command: modprobe v4l2loopback video_nr=8,9 card_label=OBS,EOS1100D
+    command: modprobe v4l2loopback 
     volumes:
     - /lib/modules:/lib/modules
 
@@ -31,19 +32,27 @@ services:
 
   obs:
     privileged: true
+    runtime: nvidia
     network_mode: "service:networksandbox"
     ipc: host
+    shm_size: '4gb'
     build:
       context: obs-studio
       dockerfile: Dockerfile.${OBS_IMAGE_DISTRO-ubuntu}
+      shm_size: '2gb'
     environment:
     - DISPLAY
     - HOME
     - USER
+    - UID
     - XAUTHORITY
+    - LANG
+    - NVIDIA_VISIBLE_DEVICES=all
     volumes:
+    - /dev:/dev
     - /tmp/.X11-unix/:/tmp/.X11-unix/
     - $HOME/.config/obs-studio:$HOME/.config/obs-studio
+    - $HOME/.config/pulse:$HOME/.config/pulse
     - $HOME/.fonts/:$HOME/.fonts/
     - $XAUTHORITY:$XAUTHORITY:ro
     - /etc/passwd:/etc/passwd:ro
@@ -54,22 +63,10 @@ services:
     - /usr/lib/x86_64-linux-gnu/:/local-libraries/:ro
     # Directory containing e.g. images, videos, etc. used in OBS scenes
     #- $HOME/Documents/streaming-assets:$HOME/Documents/streaming-assets
-    command:
-    - sh
-    - -c
-    - |
-      chown ${UID:?please 'export UID'} $HOME/.config/obs-studio
-      chown ${UID:?please 'export UID'} $HOME
-      xset -dpms
-      xset s off
-      if [ -d /local-libraries ]; then
-        cp -a /local-libraries/libnv* /usr/lib/x86_64-linux-gnu/
-        cp -a /local-libraries/nvidia/current/* /usr/lib/x86_64-linux-gnu/
-      fi
-      mkdir -p $HOME/.config/obs-studio/plugins
-      [ -d $HOME/.config/obs-studio/plugins/obs-linuxbrowser ] ||
-        ln -sf /src/obs-linuxbrowser $HOME/.config/obs-studio/plugins/obs-linuxbrowser
-      exec su $USER sh -c "exec obs"
+    - $HOME/Immagini/:$HOME/Immagini
+    - $HOME/Scaricati/:$HOME/Scaricati/
+  
+    entrypoint: ["/data/start.sh"]
 
   streamdeck:
     privileged: true
@@ -86,19 +83,22 @@ services:
     - /etc/passwd:/etc/passwd:ro
     - /etc/shadow:/etc/shadow:ro
     - /etc/group:/etc/group:ro
-    - ./bin/:/scripts/:ro
+    - ./bin/:/scripts/
     - ./data/:/data/
-    - /home/jp/recordings/:/recordings/:ro
+    - $HOME/recordings/:/recordings/:ro
+    - $HOME/.Xauthority:/home/patane/.Xauthority:ro
     working_dir: /data
     command:
     - sh
     - -c
     - |
       chown ${UID:?please 'export UID'} $HOME
+      echo $USER
       exec su -G input -G video $USER sh -c "exec streamdeck"
 
   countdown:
     image: python:3
+    #image: new-obs-docker_streamdeck
     volumes:
     - /etc/passwd:/etc/passwd:ro
     - /etc/shadow:/etc/shadow:ro
