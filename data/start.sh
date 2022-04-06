@@ -1,17 +1,38 @@
 #!/bin/bash
+STORAGE_DIR=/data
 
+echo "Download Some plugins!"
+echo "Scene Switcher"
+cd /src
+curl -L -O https://github.com/WarmUpTill/SceneSwitcher/releases/download/1.17.5/SceneSwitcher.zip
+unzip SceneSwitcher.zip
+
+curl -L -O https://github.com/Xaymar/obs-StreamFX/releases/download/0.11.1/streamfx-ubuntu-20.04-0.11.1.0-g81a96998.zip
+
+curl -L -o dir-watch-media-0.6.0-linux64.tar.gz.zip "https://obsproject.com/forum/resources/directory-watch-media.801/version/4096/download?file=81705"
+unzip dir-watch-media-0.6.0-linux64.tar.gz.zip
+DIR_WATCH_MEDIA_PKG=$(unzip -t dir-watch-media-0.6.0-linux64.tar.gz.zip |grep testing|awk '{print $2}')
+
+curl -L -o replay-source-1.6.10-linux64.tar.gz.zip "https://obsproject.com/forum/resources/replay-source.686/version/4089/download?file=81604"
+REPLAY_SOURCE_PKG=$(unzip -t replay-source-1.6.10-linux64.tar.gz.zip |grep testing|awk '{print $2}')
 
 #xset -dpms
 xset s off
 mkdir -p $HOME/.config/obs-studio/plugins
-# [ -d $HOME/.config/obs-studio/plugins/obs-linuxbrowser ] ||
-#   ln -sf /src/obs-linuxbrowser $HOME/.config/obs-studio/plugins/obs-linuxbrowser
-cp -ar /src/SceneSwitcher/Linux/advanced-scene-switcher $HOME/.config/obs-studio/plugins
+if [ ! $HOME/.config/obs-studio/plugins/advanced-scene-switcher ];then 
+	cp -ar /src/SceneSwitcher/Linux/advanced-scene-switcher $HOME/.config/obs-studio/plugins
+fi
 cd $HOME/.config/obs-studio
-unzip /data/streamfx-ubuntu-20.04-0.11.1.0-g81a96998.zip
+if [ ! $HOME/.config/obs-studio/plugins/StreamFX ];then
+	unzip /data/streamfx-ubuntu-20.04-0.11.1.0-g81a96998.zip
+fi
 cd $HOME/.config/obs-studio/plugins  
-tar -xvf /data/dir-watch-media-2022-03-13-02faa4587af86586ff358b3248029ce68c07ec78-linux64.tar.gz
-tar -xvf /data/replay-source-2022-03-11-319f0806784a98ca813c4ba7f0e1b3c19d0d149e-linux64.tar.gz
+if [ ! $HOME/.config/obs-studio/plugins/dir-watch-media ];then
+	tar -xvf /src/${DIR_WATCH_MEDIA_PKG}
+fi
+if [ ! $HOME/.config/obs-studio/plugins/replay-source ];then
+	tar -xvf /src/${REPLAY_SOURCE_PKG}
+fi
 pwd
 ls /data/linux/
 mkdir -p ./obs-gstreamer/bin/64bit

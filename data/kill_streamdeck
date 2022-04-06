@@ -1,0 +1,2 @@
+#!/bin/bash
+kill $(ps aux|grep streamdeck|head -n1|awk '{print $2}')
