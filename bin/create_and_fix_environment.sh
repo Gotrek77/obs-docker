@@ -12,3 +12,4 @@ function yes_or_no {
 echo "You are in: $(pwd)"
 yes_or_no "Do you want to create symbolic link to logs:
 ln -sf $HOME/.config/obs-studio/logs ./logs" && ln -sf $HOME/.config/obs-studio/logs ./logs
+yes_or_no "Do you want to create .env file to propagate permission for host user to docker user? " && id -u $USER > ./.env
