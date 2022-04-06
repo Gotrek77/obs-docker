@@ -1,5 +1,9 @@
 # OBS Docker
 
+This fork is to make more stable and usable the original project.
+I added nvidia driver support to docker-compose.yml and some other tricks.
+I want to maintain the following dislaimer until more testing are made.
+
 **⚠️WARNING⚠️**
 
 **This is not intended to be an "easy" way to run OBS Studio.
