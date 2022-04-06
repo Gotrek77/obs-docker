@@ -4,6 +4,11 @@ This fork is to make more stable and usable the original project.
 I added nvidia driver support to docker-compose.yml and some other tricks.
 I want to maintain the following dislaimer until more testing are made.
 
+Added features:
+- you can launch bin/create_logs_link.sh to fix logs link dir to correct path according with your home.
+
+
+
 **⚠️WARNING⚠️**
 
 **This is not intended to be an "easy" way to run OBS Studio.
