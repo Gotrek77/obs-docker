@@ -1,35 +1,108 @@
-FROM ubuntu:20.04
-RUN apt-get update
-RUN apt-get install -y keyboard-configuration tzdata </dev/null # lol
-RUN apt-get install -y build-essential cmake curl ffmpeg git libboost-dev libnss3 mesa-utils qtbase5-dev strace x11-xserver-utils
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:obsproject/obs-studio
-RUN apt-get install -y obs-studio
+#FROM ubuntu:20.04
+FROM nvidia/cuda:11.6.0-devel-ubuntu20.04 AS with_encoder
+# Disable Prompt During Packages Installation
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install --no-install-recommends -y apt-utils software-properties-common libnvidia-encode-510 && \
+	rm -rf /var/lib/apt/lists/*
+
+FROM with_encoder AS with_obs
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get --no-install-recommends install -y software-properties-common && \
+	add-apt-repository -y ppa:pipewire-debian/pipewire-upstream && \
+	add-apt-repository -y ppa:obsproject/obs-studio && apt-get update && \
+	apt-get -y install vlc ffmpeg curl pipewire pipewire-audio-client-libraries && \
+	rm -rf /var/lib/apt/lists/*
+
+
+FROM nvidia/cuda:11.6.0-devel-ubuntu20.04 AS software_builder
+ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /src
-RUN git clone --recursive https://github.com/obsproject/obs-studio.git
+RUN apt-get update && apt-get -y --no-install-recommends dist-upgrade &&\
+	        apt-get install --no-install-recommends -y keyboard-configuration tzdata </dev/null && \
+    		apt-get install --no-install-recommends -y build-essential \
+													   cmake \
+													   curl \
+													   git \
+													   libboost-dev \
+													   libnss3 \
+													   mesa-utils \
+													   qtbase5-dev \
+													   libqt5svg5-dev \
+													   qtbase5-dev qtbase5-private-dev libqt5svg5-dev qtwayland5 \
+													   libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev \
+													   libavutil-dev libswresample-dev libswscale-dev \
+													   libx264-dev libcurl4-openssl-dev libmbedtls-dev libgl1-mesa-dev \
+													   libjansson-dev libluajit-5.1-dev python3-dev libx11-dev \
+													   libxcb-randr0-dev libxcb-shm0-dev libxcb-xinerama0-dev libxcomposite-dev \
+													   libxinerama-dev libxcb1-dev libx11-xcb-dev \
+													   libxcb-xfixes0-dev swig libcmocka-dev libxss-dev libglvnd-dev \
+													   libgles2-mesa libgles2-mesa-dev libwayland-dev \
+													   strace \
+													   x11-xserver-utils \
+													   libva-glx2 \
+													   libva-dev \
+													   ffmpeg \
+													   software-properties-common \
+													   git ccache sudo cmake-curses-gui file locales \
+													   cmake ninja-build pkg-config clang clang-format build-essential curl ccache\
+													   libasound2-dev libfdk-aac-dev libfontconfig-dev libfreetype6-dev libjack-jackd2-dev \
+													   libpulse-dev libsndio-dev libspeexdsp-dev libudev-dev libv4l-dev libva-dev libvlc-dev \
+													   libdrm-dev
+RUN apt-get --no-install-recommends install -y software-properties-common && \
+	add-apt-repository -y ppa:obsproject/obs-studio && apt-get update && \
+	add-apt-repository -y ppa:pipewire-debian/pipewire-upstream && \
+	apt-get -y install vlc ffmpeg curl pipewire pipewire-audio-client-libraries
+RUN	apt-get update && apt-get install --no-install-recommends -y ncurses-bin gstreamer1.0-pipewire libpipewire-0.3-0 libpipewire-0.3-dev libpipewire-0.3-modules \
+libspa-0.2-bluetooth libspa-0.2-dev libspa-0.2-jack libspa-0.2-modules pipewire pipewire-audio-client-libraries pipewire-pulse pipewire-media-session \
+pipewire-bin pipewire-locales pipewire-tests 
+RUN locale-gen en_US.UTF-8 it_IT.UTF-8
+#RUN apt-get -y install libffmpeg-nvenc-dev libnvidia-encode-510 nvidia-opencl-dev
 
-RUN git clone https://github.com/CatxFish/obs-v4l2sink.git
-WORKDIR obs-v4l2sink
-WORKDIR build
-RUN cmake -DLIBOBS_INCLUDE_DIR="../../obs-studio/libobs" -DCMAKE_INSTALL_PREFIX=/usr ..
-RUN make -j4
-RUN make install
+
+FROM software_builder AS obs-studio-plugins-builder
+ARG DEBIAN_FRONTEND=noninteractive
+#ENV BUILD_CONFIG=Debug
 WORKDIR /src
+RUN git clone --recursive https://github.com/obsproject/obs-studio.git && \
+    git clone --recursive https://github.com/Palakis/obs-websocket.git && \
+    git clone https://github.com/CatxFish/obs-v4l2sink.git 
+RUN    cd /src/obs-studio && git pull 
+#RUN /bin/bash -c 'export TERM=screen-256color && cd /src/obs-studio && CI/linux/01_install_dependencies.sh && rm -rf build && BUILD_CONFIG=Debug CI/build-linux.sh'  
+#RUN /bin/bash -c 'export TERM=screen-256color && cd /src/obs-studio && CI/build-linux.sh --package '
+#RUN /bin/bash -c 'mkdir /dst && cp /src/obs-studio/build/obs-studio-27.2.0-*-Linux.deb /dst '
+    #cd /src/obs-v4l2sink && mkdir build && cd build && cmake -DLIBOBS_INCLUDE_DIR="../../obs-studio/libobs" -DCMAKE_INSTALL_PREFIX=/usr .. && make -j4  && make DESTDIR=/dst/local_root install &&\
+#    cd /src/obs-websocket &&  mkdir build && cd build && cmake -DOBS_WEBSOCKET_VERSION=4.9.1 -DLIBOBS_INCLUDE_DIR="../../obs-studio/libobs" -DCMAKE_INSTALL_PREFIX=/usr .. && make -j4 && make DESTDIR=/dst/local_root install &&\
+# 	cd / && rm -rf /src
 
-RUN git clone --recursive https://github.com/Palakis/obs-websocket.git
-# The following line seems necessary because that header otherwise can't be found (hackish?)
-# RUN ln -s /src/obs-studio/UI/obs-frontend-api/obs-frontend-api.h /usr/include/obs/
-WORKDIR obs-websocket
-#RUN git checkout 5.x
-WORKDIR build
-RUN cmake -DLIBOBS_INCLUDE_DIR="../../obs-studio/libobs" -DCMAKE_INSTALL_PREFIX=/usr ..
-RUN make -j4
-RUN make install
+# RUN curl -L -o obs-websocket_4.9.1-1_amd64.deb https://github.com/obsproject/obs-websocket/releases/download/4.9.1/obs-websocket_4.9.1-1_amd64.deb && \
+    # apt-get -y install ./obs-websocket_4.9.1-1_amd64.deb 
+
+RUN /bin/bash -c 'export TERM=screen-256color && cd /src/obs-studio && CI/linux/01_install_dependencies.sh && \
+mkdir build && cd build && \
+cmake -DBUILD_CONFIG=DEBUG -DLINUX_PORTABLE=OFF -DENABLE_BROWSER=ON -DCEF_ROOT_DIR="../../obs-build-dependencies/cef_binary_4638_linux64" -DENABLE_AJA=OFF .. && \
+make -j $(nproc) && make package && \
+mkdir /dst && cp /src/obs-studio/build/obs-studio-27.2.0-*-Linux.deb /dst ' || :
+
+
+FROM with_obs
+ARG DEBIAN_FRONTEND=noninteractive
+COPY --from=obs-studio-plugins-builder /dst /dst
+COPY --from=obs-studio-plugins-builder /src /src
 WORKDIR /src
+RUN apt-get update && apt-get -y upgrade && apt-get -y install strace locales gdb 
+									
+RUN ls /dst
+RUN apt-get -y install /dst/obs-studio-27.2.0-*-*.deb && apt-get -f install && locale-gen en_US.UTF-8 it_IT.UTF-8 
+RUN apt-get update && apt-get -y install libopencv-imgproc4.2 libopencv-objdetect4.2
+RUN cd /src && curl -L -O https://github.com/WarmUpTill/SceneSwitcher/releases/download/1.17.5/SceneSwitcher.zip && \
+	unzip SceneSwitcher.zip && rm -rf SceneSwitcher/{Windows,MacOs} 
+	
+#RUN apt-get update; apt-get -y install libglvnd0 libgl1 libglx0 libegl1 libgles2 libnvidia-encode-510 libnvidia-compute-510
+#COPY 10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
 
-RUN cp /usr/lib/x86_64-linux-gnu/obs-plugins/*.so /usr/lib/obs-plugins
+#RUN cp -vr /dst/local_root/usr/lib/x86_64-linux-gnu/obs-plugins/* /usr/lib/obs-plugins/ && cp -vr local_root/usr/share/obs/obs-plugins/* /usr/share/obs/obs-plugins/  && rm -rf /dst && rm -rf /var/lib/apt/lists/*
 
-# Note 1: this depends on libnss3 (installed with APT earlier).
-# Note 2: this is not enough to install the plugin. A symlink must
-#         be created in $HOME/.config/obs-studio/plugins as well.
-RUN curl -sL https://github.com/bazukas/obs-linuxbrowser/releases/download/0.6.1/linuxbrowser0.6.1-obs23.0.2-64bit.tgz | tar -zxf-
+#RUN curl -L -o obs-websocket_4.9.1-1_amd64.deb https://github.com/obsproject/obs-websocket/releases/download/4.9.1/obs-websocket_4.9.1-1_amd64.deb && \
+#	apt-get update && apt-get -y install qt5-image-formats-plugins ./obs-websocket_4.9.1-1_amd64.deb &&\
+#	rm -rf /dst && rm -rf /var/lib/apt/lists/*
+#### dpkg-statoverride --remove $(dpkg-statoverride --list|grep dbus|awk '{print $4}')
