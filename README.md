@@ -5,7 +5,7 @@ I added nvidia driver support to docker-compose.yml and some other tricks.
 I want to maintain the following dislaimer until more testing are made.
 
 Added features:
-- you can launch bin/create_logs_link.sh to fix logs link dir to correct path according with your home.
+- you can launch bin/create_and_fix_environment.sh to fix logs link dir to correct path according with your home and make other fix.
 
 
 
