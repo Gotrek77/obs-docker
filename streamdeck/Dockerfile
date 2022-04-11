@@ -18,7 +18,8 @@ RUN apt-get update &&  \
                                                v4l-utils \
                                                libhidapi-libusb0 \
                                                libglib2.0-0 \
-                                               libcairo2 && \
+                                               libcairo2 \
+					       xdotool && \
 #    pip3 wheel --wheel-dir=/src/local_pip_pkgs streamdeck_ui && \
 #    pip3 wheel --wheel-dir=/src/local_pip_pkgs obs-websocket-py && \
 #    pip3 wheel --wheel-dir=/src/local_pip_pkgs leglight && \
@@ -35,7 +36,7 @@ RUN apt-get update &&  \
                              libc6-dev libcc1-0 libcrypt-dev \
                              libexpat1-dev libgcc-9-dev libpython3-dev libpython3.8-dev \
                              libstdc++-9-dev libudev-dev linux-libc-dev \
-                             python3.8-dev zlib1g-dev \
+                             python3.8-dev zlib1g-dev  \
                              && \
     apt-get -y autoremove && \
     apt-get clean && \
