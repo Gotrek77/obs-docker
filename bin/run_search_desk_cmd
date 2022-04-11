@@ -1,0 +1,10 @@
+#!/bin/bash
+if [[ $(xdotool search --desktop 0 --class "$1"|head -n1) -gt 0 ]];then
+	xdotool search --desktop 0 --class "$1" windowactivate
+	echo "$1 è attivo"
+else
+	xdotool key Alt+F2
+	sleep 0.2 
+	xdotool type "$1"  
+	xdotool key Return
+fi
