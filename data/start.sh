@@ -3,7 +3,7 @@ STORAGE_DIR=/data
 
 echo "Download Some plugins!"
 echo "Scene Switcher"
-cd /src
+cd /dst
 curl -L -O https://github.com/WarmUpTill/SceneSwitcher/releases/download/1.17.5/SceneSwitcher.zip
 unzip SceneSwitcher.zip
 
@@ -20,7 +20,7 @@ REPLAY_SOURCE_PKG=$(unzip -t replay-source-1.6.10-linux64.tar.gz.zip |grep testi
 xset s off
 mkdir -p $HOME/.config/obs-studio/plugins
 if [ ! $HOME/.config/obs-studio/plugins/advanced-scene-switcher ];then 
-	cp -ar /src/SceneSwitcher/Linux/advanced-scene-switcher $HOME/.config/obs-studio/plugins
+	cp -ar /dst/SceneSwitcher/Linux/advanced-scene-switcher $HOME/.config/obs-studio/plugins
 fi
 cd $HOME/.config/obs-studio
 if [ ! $HOME/.config/obs-studio/plugins/StreamFX ];then
@@ -28,10 +28,10 @@ if [ ! $HOME/.config/obs-studio/plugins/StreamFX ];then
 fi
 cd $HOME/.config/obs-studio/plugins  
 if [ ! $HOME/.config/obs-studio/plugins/dir-watch-media ];then
-	tar -xvf /src/${DIR_WATCH_MEDIA_PKG}
+	tar -xvf /dst/${DIR_WATCH_MEDIA_PKG}
 fi
 if [ ! $HOME/.config/obs-studio/plugins/replay-source ];then
-	tar -xvf /src/${REPLAY_SOURCE_PKG}
+	tar -xvf /dst/${REPLAY_SOURCE_PKG}
 fi
 pwd
 ls /data/linux/
