@@ -6,7 +6,7 @@ I want to maintain the following dislaimer until more testing are made.
 
 Added features:
 - you can launch bin/create_and_fix_environment.sh to fix logs link dir to correct path according with your home and make other fix.
-
+- add udev support to streamdeck container to support hotplug of usb peripheral
 
 
 **⚠️WARNING⚠️**
