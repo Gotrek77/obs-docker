@@ -88,6 +88,7 @@ services:
     - ./data/:/data/
     - $HOME/recordings/:/recordings/:ro
     - $HOME/.Xauthority:/home/patane/.Xauthority:ro
+    - /dev:/dev
     working_dir: /data
     command:
     - sh
@@ -95,7 +96,7 @@ services:
     - |
       chown ${UID:?please 'export UID'} $HOME
       echo $USER
-      exec su -G input -G video $USER sh -c "exec streamdeck"
+      exec sh -c "/lib/systemd/systemd-udevd -d" & su -G input -G video $USER sh -c "exec streamdeck"
 
   countdown:
     image: python:3
