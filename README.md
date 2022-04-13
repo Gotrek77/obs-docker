@@ -59,14 +59,8 @@ but the trade-offs work for me.
 
 Things that don't work or could be better ...
 
-- Hotplugging devices (webcams or Stream Deck)
-  requires to restart their respective containers
-  (solution: bind-mount `/dev` to the container?)
 - Suspend / resume generally requires to restart
   containers (probably because of the previous point)
-- Some work is still needed on the host
-  (V4L2 loopback module install; udev rules for
-  Stream Deck)
 - Add ffmpeg multi-stream encoder (I currently
   run it directly on the host because reasons)
 - Make sure that the OBS Dockerfile works correctly
