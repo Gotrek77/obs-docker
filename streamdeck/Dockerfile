@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /src
+COPY 70-streamdeck.rules .
 RUN apt-get update &&  \
     apt-get --no-install-recommends --no-install-suggests -y install build-essential \
                                                libudev-dev \
@@ -19,7 +20,8 @@ RUN apt-get update &&  \
                                                libhidapi-libusb0 \
                                                libglib2.0-0 \
                                                libcairo2 \
-					       xdotool && \
+                                               libxcb-xinerama0 \
+					       xdotool udev python3-pyudev && \
 #    pip3 wheel --wheel-dir=/src/local_pip_pkgs streamdeck_ui && \
 #    pip3 wheel --wheel-dir=/src/local_pip_pkgs obs-websocket-py && \
 #    pip3 wheel --wheel-dir=/src/local_pip_pkgs leglight && \
@@ -41,4 +43,7 @@ RUN apt-get update &&  \
     apt-get -y autoremove && \
     apt-get clean && \
     rm -rf /src/local_pip_pkgs /root/.cache && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    cp 70-streamdeck.rules /usr/lib/udev/rules.d/70-streamdeck.rules && \
+    /lib/systemd/systemd-udevd -d && \
+    udevadm trigger
