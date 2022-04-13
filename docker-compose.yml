@@ -76,6 +76,7 @@ services:
     - DISPLAY
     - HOME
     - USER
+    - UDEV=1
     - PATH=/scripts:/usr/local/bin:/usr/bin:/bin
     volumes:
     - /tmp/.X11-unix/:/tmp/.X11-unix/
