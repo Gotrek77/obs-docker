@@ -32,6 +32,7 @@ services:
 
   obs:
     privileged: true
+    pid: "host"
     runtime: nvidia
     network_mode: "service:networksandbox"
     ipc: host
@@ -60,7 +61,7 @@ services:
     - /etc/group:/etc/group:ro
     - /run/user/$UID/pulse/:/var/run/pulse/
     - ./data/:/data/
-    - /usr/lib/x86_64-linux-gnu/:/local-libraries/:ro
+    #- /usr/lib/x86_64-linux-gnu/:/local-libraries/:ro
     # Directory containing e.g. images, videos, etc. used in OBS scenes
     #- $HOME/Documents/streaming-assets:$HOME/Documents/streaming-assets
     - $HOME/Immagini/:$HOME/Immagini
