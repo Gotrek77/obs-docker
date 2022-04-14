@@ -7,7 +7,7 @@ I want to maintain the following dislaimer until more testing are made.
 Added features:
 - you can launch bin/create_and_fix_environment.sh to fix logs link dir to correct path according with your home and make other fix.
 - add udev support to streamdeck container to support hotplug of usb peripheral
-
+- work correctly with/without Nvidia driver and with software enc/dec
 
 **⚠️WARNING⚠️**
 
@@ -63,7 +63,6 @@ Things that don't work or could be better ...
   containers (probably because of the previous point)
 - Add ffmpeg multi-stream encoder (I currently
   run it directly on the host because reasons)
-- Make sure that the OBS Dockerfile works correctly
   both with and without NVIDIA GPU
 
 
