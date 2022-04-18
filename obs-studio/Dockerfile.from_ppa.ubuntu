@@ -1,0 +1,16 @@
+#FROM ubuntu:20.04
+FROM nvidia/cuda:11.6.0-runtime-ubuntu20.04
+# Disable Prompt During Packages Installation
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get --no-install-recommends install -y software-properties-common && \
+	add-apt-repository --remove restricted && \
+	add-apt-repository -y ppa:pipewire-debian/pipewire-upstream && \
+	add-apt-repository -y ppa:obsproject/obs-studio && apt-get update && \
+	apt-get install --no-install-recommends -y apt-utils libnvidia-*-510 libffmpeg-nvenc-dev \
+											   obs-studio vlc ffmpeg curl pipewire \
+											   pipewire-audio-client-libraries unzip libopencv4.2 && \
+	rm -rf /var/lib/apt/lists/*
+
+	
+#	rm -rf /dst && rm -rf /var/lib/apt/lists/*
+#### dpkg-statoverride --remove $(dpkg-statoverride --list|grep dbus|awk '{print $4}')
