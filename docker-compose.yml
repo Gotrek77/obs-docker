@@ -39,7 +39,8 @@ services:
     shm_size: '4gb'
     build:
       context: obs-studio
-      dockerfile: Dockerfile.${OBS_IMAGE_DISTRO-ubuntu}
+#      dockerfile: Dockerfile.${OBS_IMAGE_DISTRO-ubuntu}
+      dockerfile: Dockerfile.from_ppa.${OBS_IMAGE_DISTRO-ubuntu}
       shm_size: '2gb'
     environment:
     - DISPLAY
