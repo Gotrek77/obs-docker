@@ -73,7 +73,10 @@ services:
   streamdeck:
     privileged: true
     network_mode: "service:networksandbox"
-    build: streamdeck
+    build: 
+      context: streamdeck
+      dockerfile: Dockerfile.${OBS_IMAGE_DISTRO-bullseye}
+      shm_size: '2gb'
     environment:
     - DISPLAY
     - HOME
@@ -91,6 +94,7 @@ services:
     - $HOME/recordings/:/recordings/:ro
     - $HOME/.Xauthority:/home/patane/.Xauthority:ro
     - /dev:/dev
+    - /sys:/sys
     working_dir: /data
     command:
     - sh
@@ -98,6 +102,7 @@ services:
     - |
       chown ${UID:?please 'export UID'} $HOME
       echo $USER
+      #exec su -G input -G video $USER sh -c "exec streamdeck"
       exec sh -c "/lib/systemd/systemd-udevd -d" & su -G input -G video $USER sh -c "exec streamdeck"
 
   countdown:
