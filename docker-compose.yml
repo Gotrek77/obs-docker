@@ -40,7 +40,8 @@ services:
     build:
       context: obs-studio
 #      dockerfile: Dockerfile.${OBS_IMAGE_DISTRO-ubuntu}
-      dockerfile: Dockerfile.from_ppa.${OBS_IMAGE_DISTRO-ubuntu}
+#      dockerfile: Dockerfile.from_ppa.${OBS_IMAGE_DISTRO-ubuntu}
+      dockerfile: Dockerfile.from_ppa_fullyloaded.${OBS_IMAGE_DISTRO-ubuntu}
       shm_size: '2gb'
     environment:
     - DISPLAY
@@ -67,8 +68,9 @@ services:
     #- $HOME/Documents/streaming-assets:$HOME/Documents/streaming-assets
     - $HOME/Immagini/:$HOME/Immagini
     - $HOME/Scaricati/:$HOME/Scaricati/
+    - $HOME/Video/recordings/:$HOME/recordings/
   
-    entrypoint: ["/data/start.sh"]
+    entrypoint: ["/data/start_fullyloaded.sh"]
 
   streamdeck:
     privileged: true
@@ -92,7 +94,7 @@ services:
     - ./bin/:/scripts/
     - ./data/:/data/
     - $HOME/recordings/:/recordings/:ro
-    - $HOME/.Xauthority:/home/patane/.Xauthority:ro
+    - $HOME/.Xauthority:$HOME/.Xauthority:ro
     - /dev:/dev
     - /sys:/sys
     working_dir: /data
@@ -103,7 +105,7 @@ services:
       chown ${UID:?please 'export UID'} $HOME
       echo $USER
       #exec su -G input -G video $USER sh -c "exec streamdeck"
-      exec sh -c "/lib/systemd/systemd-udevd -d" & su -G input -G video $USER sh -c "exec streamdeck"
+      exec sh -c "/lib/systemd/systemd-udevd -d &" & su -G input -G video $USER sh -c "exec streamdeck"
 
   countdown:
     image: python:3

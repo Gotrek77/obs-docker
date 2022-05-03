@@ -57,7 +57,11 @@ if [ ! -d "$HOME_OBS_STUDIO_CFG/plugins/obs-gstreamer" ];then
 	mkdir -p ./obs-gstreamer/bin/64bit
 	mv $STORAGE_TMP/linux/obs-gstreamer.so ./obs-gstreamer/bin/64bit
 fi
-
+	echo "Download obs-websocket 5.0.0 beta 1"
+	curl -L -O https://github.com/obsproject/obs-websocket/releases/download/5.0.0-beta1/obs-websocket-5.0.0-beta1-Ubuntu64.deb
+	dpkg-statoverride --remove /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+	dpkg -i obs-websocket*.deb
+	apt-get -f install
 if [ ! -d "$STORAGE_TMP" ];then
 	echo "Remove Temporary Storage"
 	rm -rf $STORAGE_TMP
