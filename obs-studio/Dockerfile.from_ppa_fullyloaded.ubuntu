@@ -1,0 +1,35 @@
+#FROM ubuntu:20.04
+FROM nvidia/cuda:11.6.0-runtime-ubuntu20.04
+# Disable Prompt During Packages Installation
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-key del 7fa2af80 && \
+	sed -i '/developer\.download\.nvidia\.com\/compute\/cuda\/repos/d' /etc/apt/sources.list.d/* && \
+	sed -i '/developer\.download\.nvidia\.com\/compute\/machine-learning\/repos/d' /etc/apt/sources.list.d/* && \
+	apt-get update && \
+	apt-get --no-install-recommends install -y software-properties-common wget && \
+	wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb && \
+	dpkg -i cuda-keyring_1.0-1_all.deb && apt-get update && \
+	add-apt-repository --remove restricted && \
+	add-apt-repository -y ppa:pipewire-debian/pipewire-upstream && \
+	add-apt-repository -y ppa:flexiondotorg/obs-fully-loaded && \
+	apt-get update && \
+	apt-get install --no-install-recommends -y apt-utils libnvidia-*-510 libffmpeg-nvenc-dev \
+											   obs-studio obs-plugins vlc ffmpeg curl pipewire \
+											   pipewire-audio-client-libraries unzip libopencv4.2 libqt5concurrent5 qt5-image-formats-plugins sudo && \
+											   rm -rf /var/lib/apt/lists/*
+
+RUN cat /etc/group && useradd -u 1000 user && usermod -aG sudo user && \
+	cat /etc/sudoers && \
+	sed -i 's/%sudo	ALL=(ALL:ALL) ALL/%sudo	ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers && \
+ cd /tmp && wget https://raw.githubusercontent.com/wimpysworld/obs-fully-loaded/main/obs-install.sh && chmod +x obs-install.sh && su user -c 'sudo /tmp/obs-install.sh'
+
+
+# RUN	echo "install obs-websocket" && \
+# 	#curl -L -O https://github.com/obsproject/obs-websocket/releases/download/5.0.0-beta1/obs-websocket-5.0.0-beta1-Ubuntu64.deb && \
+# 	curl -L -O https://github.com/obsproject/obs-websocket/releases/download/4.9.1/obs-websocket_4.9.1-1_amd64.deb && \
+# 	dpkg -i obs-websocket*.deb && \
+# 	apt-get -f install && \
+# 	rm -rf /var/lib/apt/lists/*
+	
+#	rm -rf /dst && rm -rf /var/lib/apt/lists/*
+#### dpkg-statoverride --remove $(dpkg-statoverride --list|grep dbus|awk '{print $4}')
