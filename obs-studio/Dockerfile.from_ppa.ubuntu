@@ -5,12 +5,18 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get --no-install-recommends install -y software-properties-common && \
 	add-apt-repository --remove restricted && \
 	add-apt-repository -y ppa:pipewire-debian/pipewire-upstream && \
-	add-apt-repository -y ppa:obsproject/obs-studio && apt-get update && \
+	add-apt-repository -y ppa:obsproject/obs-studio && \
+	apt-get update && \
 	apt-get install --no-install-recommends -y apt-utils libnvidia-*-510 libffmpeg-nvenc-dev \
 											   obs-studio vlc ffmpeg curl pipewire \
-											   pipewire-audio-client-libraries unzip libopencv4.2 && \
+											   pipewire-audio-client-libraries unzip libopencv4.2 libqt5concurrent5 qt5-image-formats-plugins && \
+											   rm -rf /var/lib/apt/lists/*
+RUN	echo "install obs-websocket" && \
+	#curl -L -O https://github.com/obsproject/obs-websocket/releases/download/5.0.0-beta1/obs-websocket-5.0.0-beta1-Ubuntu64.deb && \
+	curl -L -O https://github.com/obsproject/obs-websocket/releases/download/4.9.1/obs-websocket_4.9.1-1_amd64.deb && \
+	dpkg -i obs-websocket*.deb && \
+	apt-get -f install && \
 	rm -rf /var/lib/apt/lists/*
-
 	
 #	rm -rf /dst && rm -rf /var/lib/apt/lists/*
 #### dpkg-statoverride --remove $(dpkg-statoverride --list|grep dbus|awk '{print $4}')
