@@ -1,5 +1,5 @@
 #FROM ubuntu:20.04
-FROM nvidia/cuda:11.6.0-runtime-ubuntu20.04
+FROM nvidia/cuda:11.6.2-runtime-ubuntu20.04
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-key del 7fa2af80 && \
@@ -13,7 +13,7 @@ RUN apt-key del 7fa2af80 && \
 	add-apt-repository -y ppa:pipewire-debian/pipewire-upstream && \
 	add-apt-repository -y ppa:flexiondotorg/obs-fully-loaded && \
 	apt-get update && \
-	apt-get install --no-install-recommends -y apt-utils libnvidia-*-510 libffmpeg-nvenc-dev \
+	apt-get install --no-install-recommends -y apt-utils libnvidia-*-515 libffmpeg-nvenc-dev \
 											   obs-studio obs-plugins vlc ffmpeg curl pipewire \
 											   pipewire-audio-client-libraries unzip libopencv4.2 libqt5concurrent5 qt5-image-formats-plugins sudo && \
 											   rm -rf /var/lib/apt/lists/*
