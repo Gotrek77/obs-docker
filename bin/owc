@@ -9,14 +9,21 @@ from obswebsocket import obsws, requests  # noqa: E402
 
 host = "localhost"
 port = 4444
+password="pippo"
+# host = "172.23.0.2"
+# port = 4455
 
 # Manual connection
 # (there seems to be an issue with password auth;
 # this might be specific to OBS 24 since it worked
 # fine on OBS 25 on Arch)
-ws = obsws(host, port)
-ws.ws = websocket.WebSocket()
-ws.ws.connect("ws://{}:{}".format(host, port))
+ws = obsws(host, port, password)
+#ws.ws = websocket.WebSocket()
+#ws.ws.connect("ws://{}:{}".format(host, port))
+ws.connect()
+ws.call(requests.GetSceneList())
+
+exit
 ws._run_threads()
 
 def call(func, *args, **kwargs):
